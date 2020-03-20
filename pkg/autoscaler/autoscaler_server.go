@@ -19,7 +19,7 @@ package autoscaler
 import (
 	"time"
 
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/util/clock"
 
 	"github.com/kubernetes-incubator/cluster-proportional-autoscaler/cmd/cluster-proportional-autoscaler/options"
@@ -66,6 +66,7 @@ func (s *AutoScaler) Run() {
 	ticker := s.clock.NewTicker(s.pollPeriod)
 	s.readyCh <- struct{}{} // For testing.
 
+	go s.startHealthz()
 	// Don't wait for ticker and execute pollAPIServer() for the first time.
 	s.pollAPIServer()
 
