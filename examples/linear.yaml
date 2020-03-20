@@ -20,8 +20,9 @@ metadata:
 data:
   linear: |-
     {
-      "coresPerReplica": 2,
+      "coresPerReplica": 1,
       "nodesPerReplica": 1,
+      "min": 2,
       "preventSinglePointFailure": true
     }
 ---
@@ -46,6 +47,21 @@ spec:
         ports:
         - containerPort: 80
 ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-autoscaler-service
+  namespace: default
+spec:
+  selector:
+    app: autoscaler
+  clusterIP: 10.96.1.1
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      name: autoscaler-port
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -64,7 +80,7 @@ spec:
         app: autoscaler
     spec:
       containers:
-        - image: gcr.io/google_containers/cluster-proportional-autoscaler-amd64:{LATEST_RELEASE}
+        - image: localhost:5000/cluster-scaler:latest
           name: autoscaler
           command:
             - /cluster-proportional-autoscaler
@@ -73,5 +89,14 @@ spec:
             - --target=deployment/nginx-autoscale-example
             - --logtostderr=true
             - --v=2
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8080
+              #httpHeaders:
+              #  - name: CheckConfigMap
+              #    value: "true"
+            initialDelaySeconds: 2
+            periodSeconds: 10
       # Uncomment below line if you are using RBAC configs under the RBAC folder.
       # serviceAccountName: cluster-proportional-autoscaler-example

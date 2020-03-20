@@ -25,7 +25,8 @@ REGISTRY ?= staging-k8s.gcr.io
 ARCH ?= amd64
 
 # This version-strategy uses git tags to set the version string
-VERSION := $(shell git describe --tags --always --dirty)
+#VERSION := $(shell git describe --tags --always --dirty)
+VERSION = latest
 
 ###
 ### These variables should not need tweaking.
@@ -35,7 +36,8 @@ SRC_DIRS := cmd pkg # directories which hold app source (not vendored)
 
 ALL_ARCH := amd64 arm arm64 ppc64le
 
-IMAGE := $(REGISTRY)/$(BIN)-$(ARCH)
+#IMAGE ?= $(REGISTRY)/$(BIN)-$(ARCH)
+IMAGE = "cluster-scaler"
 
 BUILD_IMAGE ?= golang:1.12.7-alpine
 
@@ -88,6 +90,7 @@ container: .container-$(DOTFILE_IMAGE) container-name
 	    -e 's|ARG_BIN|$(BIN)|g' \
 	    -e 's|ARG_ARCH|$(ARCH)|g' \
 	    Dockerfile.in > .dockerfile-$(ARCH)
+	@echo "docker building $(IMAGE):$(VERSION)"
 	@docker build --pull -t $(IMAGE):$(VERSION) -f .dockerfile-$(ARCH) .
 	@docker images -q $(IMAGE):$(VERSION) > $@
 
