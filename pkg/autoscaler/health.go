@@ -31,7 +31,8 @@ func (s *AutoScaler) healthFn(w http.ResponseWriter, req *http.Request) {
 	if req.Header.Get("CheckConfigMap") == "" {
 		return
 	}
-	if _, err := s.syncConfigWithServer(); err != nil {
+
+	if _, err := s.k8sClient.FetchConfigMap(s.k8sClient.GetNamespace(), s.configMapName); err != nil {
 		w.WriteHeader(500)
 		w.Write([]byte(fmt.Sprintf("Encountered error checking config map: %v", err)))
 		return

@@ -128,6 +128,7 @@ func (s *AutoScaler) syncConfigWithServer() (*v1.ConfigMap, error) {
 	if err == nil {
 		return configMap, nil
 	}
+
 	if s.defaultParams == nil {
 		return nil, err
 	}

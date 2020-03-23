@@ -1,5 +1,7 @@
+Makefile
 /bin
 /.go
 /.push-*
 /.container-*
 /.dockerfile-*
+examples/*
